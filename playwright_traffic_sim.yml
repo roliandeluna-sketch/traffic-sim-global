@@ -1,0 +1,36 @@
+name: Playwright Traffic Simulation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Runs once a day at midnight
+
+jobs:
+  run-simulation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npx playwright install chromium --with-deps
+
+      - name: Run simulation script
+        run: node playwright_script.js
+        env:
+          # If you want to use secrets for proxies, you can add them here
+          # PROXY_LIST: ${{ secrets.PROXY_LIST }}
+          NODE_ENV: production
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-results
+          path: funnel_real_model.json
